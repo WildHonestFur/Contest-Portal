@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Contest Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+    <style>
+	.mb-6 {
+  	    margin-bottom: 4rem !important;
+	}
+	.mb-7 {
+  	    margin-bottom: 6rem !important;
+	}
+        body.dark-mode {
+            background-color: #282828 !important;
+            color: #ffffff;
+        }
+
+        .dark-mode .bg-white {
+            background-color: #303030 !important;
+        }
+
+	.status-box h5 {
+    	    white-space: nowrap;
+    	    overflow: hidden;
+    	    text-overflow: ellipsis;
+	    line-height: 1.7;
+	}
+
+        .theme-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+        }
+
+	.dark-mode .form-control {
+            background-color: #2a2a2a;
+            color: white;
+            border: 1px solid #555;
+        }
+
+	.status-box {
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            width: 200px;
+            z-index: 1050;
+	    border-radius: 0.5rem;
+            background-color: white;
+            padding: 1rem;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+	
+	.question-status-box {
+            position: fixed;
+            bottom: 1rem;
+            left: 1rem;
+	    width: 225px;
+    	    overflow-y: auto;
+            z-index: 1050;
+            background-color: white;
+            border-radius: 0.5rem;
+            background-color: white;
+            padding: 1rem;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        .question-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .question-box {
+            width: 2rem;
+            height: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.25rem;
+            color: white;
+            font-weight: bold;
+        }
+
+        .answered {
+            background-color: #28a745;
+        }
+
+        .not-answered {
+            background-color: #dc3545;
+        }
+
+        .dark-mode .question-status-box {
+            background-color: #303030;
+        }
+
+        .dark-mode .status-box {
+            background-color: #303030;
+        }
+
+        .dark-mode .form-control:focus {
+            background-color: #333;
+            border-color: #888;
+            box-shadow: none;
+        }
+
+	.styled-radio {
+            border: 0.5px solid #007bff;
+    	    background-color: #f0f8ff;
+    	    margin-right: 8px;
+	    transition: 0.2s;
+	}
+
+	.styled-radio:checked {
+    	    background-color: #007bff;
+	}
+
+	.dark-mode .styled-radio {
+            border: 0.5px solid #666666;
+    	    background-color: #f0f8ff;
+    	    margin-right: 8px;
+	    transition: 0.2s;
+	}
+
+	.dark-mode .styled-radio:checked {
+    	    background-color: #666666;
+	}
+
+	.form-check-input:focus {
+    	    outline: none;
+    	    box-shadow: none;
+	}
+
+        .form-control:focus {
+	    border-color: #888;
+            box-shadow: none;
+        }
+
+        .dark-mode label {
+            color: #e0e0e0;
+        }
+
+        .dark-mode .btn-primary {
+            background-color: #444;
+            border: none;
+        }
+
+        .dark-mode .btn-primary:hover {
+            background-color: #555;
+        }
+
+	.dark-mode input::placeholder,
+	.dark-mode textarea::placeholder {
+ 	   color: #aaa; 
+	}
+	
+    </style>
+</head>
+<body class="bg-light">
+    <button class="btn btn-outline-secondary theme-toggle" onclick="toggleTheme()">
+        <i class="bi bi-moon"></i>
+    </button> 
+
+    <button class="btn btn-outline-secondary position-fixed" style="top: 4rem; right: 1rem;" onclick="toggleBox('statusBox')">
+    	<i class="bi bi-clock"></i>
+    </button>
+
+    <button class="btn btn-outline-secondary position-fixed" style="top: 7rem; right: 1rem;" onclick="toggleBox('questionBox')">
+    	<i class="bi bi-clipboard-check"></i>
+    </button>
+
+    <div class="status-box" id="statusBox">
+        <h5 id="name" class="mb-2">Yudhish K</h5>
+        <p id="round">{{cround}} Round</p>
+        <p>Time Left: <span id="timer">30:00</span></p>
+        <button class="btn btn-primary w-100" onclick="document.getElementById('test').submit()">Submit</button>
+    </div>
+
+    <div class="question-status-box rounded-3" id="questionBox">
+        <h6 class="mb-3">Questions</h6>
+        <div class="question-grid">
+	    {% for q in qlist %}
+		<div class="question-box not-answered" id="status-q{{q.number}}">{{q.number}}</div>
+	    {% endfor %}
+	</div>
+    </div>
+
+    <form method="POST" id="test">
+    	{% for category, questions in questions_by_category.items() %}
+    	    <div class="container mt-5 p-4 shadow bg-white rounded" style="max-width: 700px;">
+        	<div class="mb-5">
+               	    <h2 class="text-center">{{category}}</h2>
+        	</div>
+            	{% for q in questions %}
+        	    <div class="mb-5">
+                    	<h4 class="mb-3">Question {{q.number}}:</h4>
+            	    	<p>{{q.text | safe}}</p>
+
+                    	{% if q.type == 'text' %}
+                    	    <div class="mb-3">
+                            	<label class="form-label">Your Answer:</label>
+                            	<input id="q{{q.number}}" name="q{{q.number}}" type="text" class="form-control" placeholder="Type your answer here..." oninput="updateStatus('q{{q.number}}')">
+             	    	    </div>
+            	    	{% elif q.type == 'mcq' %}
+                	    <div class="ms-4">
+                    		{% for option in q.options %}
+                            	    <div class="form-check mb-2">
+                            		<input class="form-check-input styled-radio" type="radio" name="q{{q.number}}" id="q{{q.number}}_{{loop.index}}" value="{{option}}" onclick="updateStatus('q{{q.number}}')">
+                            		<label class="form-check-label" for="q{{q.number}}_{{loop.index}}">{{option}}</label>
+                        	    </div>
+                    		{% endfor %}
+                	    </div>
+            		{% endif %}
+        	    </div>
+        	{% endfor %}
+    	    </div>
+    	{% endfor %}
+    </form>
+    
+
+    <script>
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const icon = document.querySelector('.theme-toggle i');
+            if (document.body.classList.contains('dark-mode')) {
+                icon.classList.remove('bi-moon');
+                icon.classList.add('bi-sun');
+            }
+	    else {
+                icon.classList.remove('bi-sun');
+                icon.classList.add('bi-moon');
+            }
+        }
+	function updateStatus(id) {
+    	    const status = document.getElementById('status-' + id);
+    	    const input = document.getElementById(id);
+    	    if (input && input.tagName === 'INPUT' && input.type === 'text') {
+        	if (input.value.trim() !== '') {
+            	    status.classList.remove('not-answered');
+            	    status.classList.add('answered');
+        	}
+	    	else {
+            	    status.classList.remove('answered');
+            	    status.classList.add('not-answered');
+        	}
+        	return;
+    	    }	
+
+    	    const radios = document.getElementsByName(id);
+    	    let selected = false;
+    	    for (let i = 0; i < radios.length; i++) {
+            	if (radios[i].checked) {
+            	    selected = true;
+            	    break;
+            	}
+    	    }
+
+    	    if (selected) {
+        	status.classList.remove('not-answered');
+        	status.classList.add('answered');
+    	    }
+	    else {
+        	status.classList.remove('answered');
+        	status.classList.add('not-answered');
+    	    }
+	}
+	function toggleBox(id) {
+    	    const el = document.getElementById(id);
+    	    el.style.display = (el.style.display === 'none') ? 'block' : 'none';
+	}
+
+	const startTimeStr = {{end_time|tojson}};
+        const startTime = new Date(startTimeStr);
+
+        function updateCountdown() {
+            const now = new Date();
+            const diff = startTime.getTime() - now.getTime();
+	    
+            if (diff <= 0) {
+                document.getElementById("timer").textContent = "00:00:00";
+                clearInterval(timer);
+		document.getElementById("test").submit()
+                return;
+            }
+
+            const totalSeconds = Math.floor(diff / 1000);
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+
+            document.getElementById("timer").textContent =
+                `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        updateCountdown();
+        const timer = setInterval(updateCountdown, 1000);
+    </script>
+</body>
+</html>
